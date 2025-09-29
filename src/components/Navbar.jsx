@@ -16,13 +16,13 @@ const Navbar = () => {
   ];
 
   return (
-    <nav className="bg-gradient-to-r from-primary to-secondary text-white shadow-xl">
+    <nav className="bg-white/10 backdrop-blur-md border-b border-white/20 shadow-glass">
       <div className="container mx-auto px-4">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="flex items-center justify-between py-4">
             <Link to="/" className="flex items-center space-x-2">
               <span className="text-3xl">🎪</span>
-              <span className="text-2xl font-display font-bold">Ringmaster's Roundtable</span>
+              <span className="text-2xl font-display font-bold text-secondary drop-shadow">Ringmaster's Roundtable</span>
             </Link>
           </div>
           
@@ -33,11 +33,11 @@ const Navbar = () => {
                 to={item.path}
                 className={`flex items-center space-x-2 px-4 py-2 rounded-lg transition-all duration-300 ${
                   location.pathname === item.path 
-                    ? 'bg-white/20 backdrop-blur-sm' 
+                    ? 'bg-secondary/20 backdrop-blur-sm ring-1 ring-secondary/60' 
                     : 'hover:bg-white/10'
                 }`}
               >
-                <span className="text-yellow-300">{item.icon}</span>
+                <span className="text-secondary">{item.icon}</span>
                 <span className="font-medium">{item.name}</span>
               </Link>
             ))}

@@ -11,7 +11,7 @@ import Itinerary from './pages/Itinerary';
 function App() {
   return (
     <Router>
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-dark text-white">
         <Navbar />
         <main className="container mx-auto p-6">
           <Routes>
