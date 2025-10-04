@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ENV from "../config/env";
+const { API_BASE_URL, ORS_API_KEY } = ENV;
 import {
   FaRoute,
   FaWalking,
@@ -33,43 +35,66 @@ const RoutesPage = () => {
     e.preventDefault();
     setError(null);
     setLoading(true);
-
+  
     try {
-      const res = await fetch(
-        `http://localhost:5000/api/directions?origin=${encodeURIComponent(
-          origin
-        )}&destination=${encodeURIComponent(destination)}&mode=${travelMode}`
-      );
+      if (!origin.trim() || !destination.trim()) {
+        throw new Error("Please enter both origin and destination");
+      }
+  
+      const params = new URLSearchParams({
+        origin: origin.trim(),
+        destination: destination.trim(),
+        mode: travelMode
+      });
+  
+      const apiUrl = `${API_BASE_URL}/api/directions?${params}`;
+      console.log("Making API request to:", apiUrl);
+  
+      const res = await fetch(apiUrl, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Accept": "application/json",
+          "x-api-key": ORS_API_KEY
+        },
+        credentials: "include"
+      });
+  
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.error || errorData.message || `HTTP error! status: ${res.status}`);
+      }
+  
       const data = await res.json();
-
-      if (!data.routes) {
-        setError("Unable to fetch route");
-        setRoute(null);
-        setRoutesData(null);
-        setLoading(false);
-        return;
+      
+      // Check if we have valid route data
+      if (!data || !data.geometry || !data.geometry.coordinates || data.geometry.coordinates.length < 2) {
+        throw new Error("No valid route could be calculated between these points");
       }
 
-      const coords = polyline.decode(data.routes[0].geometry);
-      const leafletCoords = coords.map(([lat, lon]) => [lat, lon]);
+      // Convert coordinates from [lon, lat] -> [lat, lon] for Leaflet
+      const coords = data.geometry.coordinates.map(([lon, lat]) => [lat, lon]);
 
       setRoute({
-        distance: data.routes[0].summary.distance, // in meters
-        duration: data.routes[0].summary.duration, // in seconds
-        steps: data.routes[0].segments[0].steps.map((s) => ({
-          instruction: s.instruction,
-          distance: s.distance, // in meters
-        })),
-        coords: leafletCoords,
+        distance: data.distance,       // in km
+        duration: data.duration,       // in seconds
+        steps: data.steps || [],
+        coords
       });
 
-      setRoutesData(data.routes);
+      setRoutesData([data]); // Store as array for consistency
+
+  
     } catch (err) {
-      setError("Failed to fetch route data.");
+      console.error("Error fetching directions:", err);
+      setError(err.message || "Error fetching directions. Please try again later.");
+      setRoute(null);
+      setRoutesData(null);
     } finally {
       setLoading(false);
     }
   };
+  
 
   const getTransportIcon = (mode) => {
     switch (mode) {

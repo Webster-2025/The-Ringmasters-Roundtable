@@ -7,10 +7,8 @@ import {
   WiThunderstorm,
   WiSnow,
 } from "react-icons/wi";
-import dotenv from "dotenv";
 
-dotenv.config();
-const OPENWEATHER_API_KEY = process.env.OPENWEATHER_API_KEY;
+const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
 
 const Weather = () => {
   const [location, setLocation] = useState("");
@@ -143,7 +141,7 @@ const Weather = () => {
                 <div className="flex items-center mt-4 md:mt-0">
                   {getWeatherIcon(forecast.current.icon)}
                   <span className="text-5xl font-bold ml-2">
-                    {forecast.current.temp}°F
+                    {forecast.current.temp}°C
                   </span>
                 </div>
               </div>
@@ -163,7 +161,7 @@ const Weather = () => {
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <p className="text-sm text-gray-500">Feels Like</p>
-                  <p className="font-medium">{forecast.current.temp}°F</p>
+                  <p className="font-medium">{forecast.current.temp}°C</p>
                 </div>
               </div>
 
@@ -176,7 +174,7 @@ const Weather = () => {
                   >
                     <p className="font-medium text-gray-800">{day.day}</p>
                     <div className="my-2">{getWeatherIcon(day.icon)}</div>
-                    <p className="text-gray-600">{day.temp}°F</p>
+                    <p className="text-gray-600">{day.temp}°C</p>
                     <p className="text-sm text-gray-500">{day.condition}</p>
                   </div>
                 ))}
