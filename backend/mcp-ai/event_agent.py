@@ -10,16 +10,16 @@ import cohere
 # You must set your Cohere API key as an environment variable.
 # For example, in your terminal: export COHERE_API_KEY="YOUR_API_KEY"
 # If you don't have one, get it from https://cohere.com/
-# As a fallback, I've added a placeholder. The agent will return dummy data without a real key.
-COHERE_API_KEY = os.environ.get("COHERE_API_KEY", "TDqJle6hLi86L7AYbarwkVMpJrPGMpziV8FlI2AX")
+COHERE_API_KEY = os.environ.get("COHERE_API_KEY")
 UNSPLASH_ACCESS_KEY = os.environ.get("UNSPLASH_ACCESS_KEY", "BDC_IfRT8fqFvRJyx4xjNjzndSVs6P1q45FQqBxa3xA")
 
 class EventAgent:
     def __init__(self):
-        if COHERE_API_KEY == "YOUR_COHERE_API_KEY_HERE":
-            print(" [EventAgent] WARNING: Cohere API key not found. Using fallback data.")
+        if not COHERE_API_KEY:
+            print(" [EventAgent] WARNING: Cohere API key not found in environment. Using fallback data.")
             self.client = None
         else:
+            print(f" [EventAgent] Initializing with Cohere API key: {COHERE_API_KEY[:10]}...")
             self.client = cohere.Client(COHERE_API_KEY)
 
     def get_event_image_url(self, keywords="event"):
@@ -47,6 +47,7 @@ class EventAgent:
 
     def get_events(self, city):
         if not self.client:
+            print(f" [EventAgent] No Cohere client available. Using fallback for {city}.")
             return self.get_fallback_events(city)
 
         prompt = f"""
@@ -63,7 +64,9 @@ class EventAgent:
         ]
         """
         try:
-            response = self.client.chat(model="command", message=prompt, temperature=0.6)
+            print(f" [EventAgent] Calling Cohere API for events in {city}...")
+            response = self.client.chat(model="command-r-08-2024", message=prompt, temperature=0.6)
+            print(f" [EventAgent] Cohere API response received. Parsing JSON...")
             json_text = re.search(r'\[.*\]', response.text, re.DOTALL)
 
             if not json_text:
@@ -105,7 +108,10 @@ class EventAgent:
             if len(cleaned_events) > 3:
                 cleaned_events = cleaned_events[:3]
 
+            print(f" [EventAgent] Successfully generated {len(cleaned_events)} events for {city} using Cohere API")
             return cleaned_events if cleaned_events else self.get_fallback_events(city)
         except Exception as e:
             print(f" [EventAgent] Cohere API Error: {e}")
+            import traceback
+            traceback.print_exc()
             return self.get_fallback_events(city)
