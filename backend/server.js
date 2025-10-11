@@ -39,6 +39,7 @@ dotenv.config({ path: backendEnvPath, override: true });
 const app = express();
 const server = http.createServer(app); // Create HTTP server from Express app
 console.log("Amadeus Key:", process.env.AMADEUS_CLIENT_ID);
+console.log("Cohere API Key:", process.env.COHERE_API_KEY ? process.env.COHERE_API_KEY.substring(0, 10) + '...' : 'NOT SET');
 
 const ENABLE_RABBITMQ = process.env.ENABLE_RABBITMQ === 'true';
 const clientDistPath = path.join(__dirname, "client", "dist");

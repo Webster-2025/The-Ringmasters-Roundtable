@@ -19,20 +19,25 @@ fi
 
 echo "Starting MCP agents in new Terminal windows..."
 
+# Export environment variables from .env files
+if [ -f "$MCP_DIR/.env" ]; then
+  export $(grep -v '^#' "$MCP_DIR/.env" | xargs)
+fi
+
 osascript <<EOF
 tell application "Terminal"
   activate
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python orchestrator_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python orchestrator_mcp.py"
   delay 1
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python map_agent_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python map_agent_mcp.py"
   delay 1
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python weather_agent_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python weather_agent_mcp.py"
   delay 1
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python itinerary_agent_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python itinerary_agent_mcp.py"
   delay 1
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python event_agent_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python event_agent_mcp.py"
   delay 1
-  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; python budget_agent_mcp.py"
+  do script "cd '$MCP_DIR'; source '$VENV_ACTIVATE'; export COHERE_API_KEY='$COHERE_API_KEY'; export OPENWEATHER_API_KEY='$OPENWEATHER_API_KEY'; export ORS_API_KEY='$ORS_API_KEY'; python budget_agent_mcp.py"
   activate
 end tell
 EOF

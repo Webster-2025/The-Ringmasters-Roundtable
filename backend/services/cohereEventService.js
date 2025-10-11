@@ -13,8 +13,15 @@ const imageCache = new Map();
 
 class CohereEventService {
   constructor() {
+    const apiKey = process.env.COHERE_API_KEY;
+    console.log(`[CohereEventService] Initializing with API key: ${apiKey ? apiKey.substring(0, 10) + '...' : 'NOT SET'}`);
+    
+    if (!apiKey) {
+      console.error('[CohereEventService] ❌ COHERE_API_KEY is not set! Will use fallback events.');
+    }
+    
     this.client = new CohereClient({
-      token: process.env.COHERE_API_KEY,
+      token: apiKey,
     });
   }
 
@@ -52,6 +59,7 @@ Rules:
 - Do not include markdown or additional text outside the JSON array.`;
 
     try {
+      console.log(`[CohereEventService] Calling Cohere API for ${normalizedCity}...`);
       const response = await this.client.chat({
         model: "command-r-08-2024",
         message: prompt,
@@ -59,16 +67,21 @@ Rules:
         max_tokens: 800
       });
 
+      console.log(`[CohereEventService] Cohere API response received`);
       const output = response?.text?.trim();
+      console.log(`[CohereEventService] Response text length: ${output?.length || 0}`);
+      
       const parsed = await this.extractEventsFromOutput(output, normalizedCity, normalizedCategory);
       if (parsed?.length) {
+        console.log(`[CohereEventService] ✅ Successfully parsed ${parsed.length} events from Cohere`);
         return parsed;
       }
 
-      console.warn("Cohere returned no parsable events. Falling back.");
+      console.warn("[CohereEventService] ⚠️ Cohere returned no parsable events. Falling back.");
       return this.getFallbackEvents(normalizedCity, normalizedCategory);
     } catch (err) {
-      console.error("❌ Error calling Cohere API:", err);
+      console.error("[CohereEventService] ❌ Error calling Cohere API:", err.message);
+      console.error("[CohereEventService] Error details:", err);
       return this.getFallbackEvents(normalizedCity, normalizedCategory);
     }
   }
